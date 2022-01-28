@@ -1,4 +1,7 @@
 import torch
+import pandas as pd
+from PIL import Image
+import torchvision.transforms as transforms
 
 
 class StartingDataset(torch.utils.data.Dataset):
@@ -7,11 +10,19 @@ class StartingDataset(torch.utils.data.Dataset):
     """
 
     def __init__(self):
+        temp = pd.read_csv('data/train.csv')
+        self.image_id = temp.image_id
+        self.label = temp.label
         pass
 
     def __getitem__(self, index):
-        inputs = torch.zeros([3, 224, 224])
-        label = 0
+        # inputs = torch.zeros([3, 224, 224])
+        # label = 0
+
+        image = Image.open('data/train_images/' + self.image_id[index])
+        reduceSize = transforms.Compose([transforms.Scale((300,400))])
+        inputs = reduceSize(transforms.ToTensor()(image))
+        label = self.label[index]
 
         return inputs, label
 
