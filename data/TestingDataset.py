@@ -4,13 +4,13 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 
-class StartingDataset(torch.utils.data.Dataset):
+class TestingDataset(torch.utils.data.Dataset):
     """
     Dataset that contains 100000 3x224x224 black images (all zeros).
     """
 
     def __init__(self):
-        temp = pd.read_csv('data/train.csv', nrows = 19000)
+        temp = pd.read_csv('data/train.csv', skiprows = lambda x: x in [1, 19000], header=0)
         self.image_id = temp.image_id
         self.label = temp.label
         pass

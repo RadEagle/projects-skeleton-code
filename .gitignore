@@ -3,6 +3,7 @@ __pycache__
 !data/
 data/*
 !data/StartingDataset.py
+!data/TestingDataset.py
 **/.DS_Store
 
 training_summaries

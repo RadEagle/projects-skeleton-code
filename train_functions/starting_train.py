@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 
+# extra imports
+from torch.utils.tensorboard import SummaryWriter
+
 
 def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
     """
@@ -38,18 +41,37 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
         # Loop over each batch in the dataset
         for batch in tqdm(train_loader):
             # TODO: Backpropagation and gradient descent
+            model.train()
+            images, labels = batch
+            # images = images.to(device)
+            # labels = labels.to(device)
+            outputs = model(images)
+            loss = loss_fn(outputs, labels)
+            loss.backward()       # Compute gradients
+            optimizer.step()      # Update all the weights with the gradients you just calculated
+            optimizer.zero_grad() # Clear gradients before next iteration
 
             # Periodically evaluate our model + log to Tensorboard
             if step % n_eval == 0:
                 # TODO:
                 # Compute training loss and accuracy.
                 # Log the results to Tensorboard.
+                accuracy = compute_accuracy(outputs, labels)
+                ###Log results to Tensorboard??!!!?
+                # https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html
+                writer = SummaryWriter()
+                writer.add_scalar("Accuracy", accuracy)
+                writer.flush()
+                writer.close()
+
 
                 # TODO:
                 # Compute validation loss and accuracy.
                 # Log the results to Tensorboard.
                 # Don't forget to turn off gradient calculations!
+                model.eval()
                 evaluate(val_loader, model, loss_fn)
+                model.train()
 
             step += 1
 
@@ -79,4 +101,15 @@ def evaluate(val_loader, model, loss_fn):
 
     TODO!
     """
-    pass
+    writer = SummaryWriter()
+
+    for batch in (val_loader):
+        images, labels = batch
+        outputs = model(images)
+        loss = loss_fn(outputs, labels)
+        accuracy = compute_accuracy(outputs, labels)
+        writer.add_scalar("Loss and Accuracy", loss, accuracy)
+
+    writer.flush()
+    writer.close()
+

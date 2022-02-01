@@ -2,6 +2,7 @@ import os
 
 import constants
 from data.StartingDataset import StartingDataset
+from data.TestingDataset import TestingDataset
 from networks.StartingNetwork import StartingNetwork
 from train_functions.starting_train import starting_train
 
@@ -18,7 +19,7 @@ def main():
 
     # Initalize dataset and model. Then train the model!
     train_dataset = StartingDataset()
-    val_dataset = StartingDataset()
+    val_dataset = TestingDataset()
     model = StartingNetwork()
     starting_train(
         train_dataset=train_dataset,
