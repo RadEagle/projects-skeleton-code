@@ -20,7 +20,6 @@ class StartingDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # inputs = torch.zeros([3, 224, 224])
         # label = 0
-        file_path_kaggle = 
         image = Image.open('data/train_images/' + self.image_id[index])
         reduceSize = transforms.Compose([transforms.Resize((300,400))])
         inputs = reduceSize(transforms.ToTensor()(image))
