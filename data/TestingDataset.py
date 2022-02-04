@@ -10,7 +10,7 @@ class TestingDataset(torch.utils.data.Dataset):
     """
 
     def __init__(self):
-                file_path = 'data/train.csv'
+        file_path = 'data/train.csv'
         file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train.csv"
         temp = pd.read_csv(file_path_kaggle, skiprows = lambda x: x in [1, 19000], header=0)
         self.image_id = temp.image_id
