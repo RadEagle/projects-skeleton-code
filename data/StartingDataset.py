@@ -12,7 +12,7 @@ class StartingDataset(torch.utils.data.Dataset):
     def __init__(self):
         file_path = 'data/train.csv'
         file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train.csv"
-        temp = pd.read_csv(file_path_kaggle, nrows = 19000)
+        temp = pd.read_csv(file_path, nrows = 20600)
         self.image_id = temp.image_id
         self.label = temp.label
         pass
@@ -20,9 +20,10 @@ class StartingDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # inputs = torch.zeros([3, 224, 224])
         # label = 0
-        file_path_kaggle = 
-        image = Image.open('data/train_images/' + self.image_id[index])
-        reduceSize = transforms.Compose([transforms.Resize((300,400))])
+        file_path = 'data/train_images/'
+        file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train_images/"
+        image = Image.open(file_path + self.image_id[index])
+        reduceSize = transforms.Compose([transforms.Resize((75,100))])
         inputs = reduceSize(transforms.ToTensor()(image))
         label = self.label[index]
 

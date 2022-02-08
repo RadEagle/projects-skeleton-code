@@ -13,12 +13,13 @@ class StartingNetwork(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.conv1 = nn.Conv2d(3, 6, 5, 2)
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.conv2 = nn.Conv2d(6, 16, 5, 2)
 
         self.flatten = nn.Flatten()
-        self.fc = nn.Linear(16 * 72 * 97, 32)
+        #self.fc = nn.Linear(16 * 72 * 97, 32)
+        self.fc = nn.Linear(16 * 3 * 5, 32)
 
         # self.fc = nn.Linear(224 * 224 * 3, 1)
         # constants.batch_size
@@ -28,8 +29,12 @@ class StartingNetwork(torch.nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        #(32, 3, 75, 100)
+        #first conv: (32, 6, 75, 100). How does max pooling of (2,2) affect dimensions? 
         x = self.pool(F.relu(self.conv1(x)))
+        #second conv:
         x = self.pool(F.relu(self.conv2(x)))
+        #second pool:  --> we get dimensions to feed to fc1 here
 
         # x = self.conv1(x)
         # print(x.shape)

@@ -7,7 +7,7 @@ from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 
-def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
+def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, device):
     """
     Trains and evaluates a model.
 
@@ -34,6 +34,7 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
     optimizer = optim.Adam(model.parameters())
     loss_fn = nn.CrossEntropyLoss()
 
+    model = model.to(device)
     step = 0
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1} of {epochs}")
@@ -43,16 +44,23 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
             # TODO: Backpropagation and gradient descent
             model.train()
             images, labels = batch
-            # images = images.to(device)
-            # labels = labels.to(device)
+            #print("Data present")
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
+            #print("Results calculated")
             loss = loss_fn(outputs, labels)
+            #print("loss calculated")
             loss.backward()       # Compute gradients
+            #print("back propagation")
             optimizer.step()      # Update all the weights with the gradients you just calculated
+            #print("step")
             optimizer.zero_grad() # Clear gradients before next iteration
+            #print("zero_grad")
 
             # Periodically evaluate our model + log to Tensorboard
-            if step % n_eval == 0:
+            if ((step % n_eval == 0) and (step != 0)):
+                #print("Enters if statement")
                 # TODO:
                 # Compute training loss and accuracy.
                 # Log the results to Tensorboard.
@@ -63,6 +71,7 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
                 writer.add_scalar("Accuracy", accuracy)
                 writer.flush()
                 writer.close()
+                #print("Closed")
 
 
                 # TODO:
@@ -70,8 +79,9 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
                 # Log the results to Tensorboard.
                 # Don't forget to turn off gradient calculations!
                 model.eval()
-                evaluate(val_loader, model, loss_fn)
+                evaluate(val_loader, model, loss_fn, device)
                 model.train()
+                print("end of if")
 
             step += 1
 
@@ -95,20 +105,27 @@ def compute_accuracy(outputs, labels):
     return n_correct / n_total
 
 
-def evaluate(val_loader, model, loss_fn):
+def evaluate(val_loader, model, loss_fn, device):
     """
     Computes the loss and accuracy of a model on the validation dataset.
 
     TODO!
     """
+    print("Start evaluate")
     writer = SummaryWriter()
+    print(len(val_loader))
+    with torch.no_grad():
+        for batch in tqdm(val_loader):
+            #print("start batch")
+            images, labels = batch
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            loss = loss_fn(outputs, labels)
+            #accuracy = compute_accuracy(outputs, labels)
 
-    for batch in (val_loader):
-        images, labels = batch
-        outputs = model(images)
-        loss = loss_fn(outputs, labels)
-        accuracy = compute_accuracy(outputs, labels)
-        writer.add_scalar("Loss and Accuracy", loss, accuracy)
+            # writer.add_scalar("Loss and Accuracy", loss, accuracy)
+            #print("end batch")
 
     writer.flush()
     writer.close()
