@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import constants
 
 
 class StartingNetwork(torch.nn.Module):
@@ -19,7 +19,7 @@ class StartingNetwork(torch.nn.Module):
 
         self.flatten = nn.Flatten()
         #self.fc = nn.Linear(16 * 72 * 97, 32)
-        self.fc = nn.Linear(16 * 3 * 5, 32)
+        self.fc = nn.Linear(16 * 3 * 5, constants.BATCH_SIZE)
 
         # self.fc = nn.Linear(224 * 224 * 3, 1)
         # constants.batch_size

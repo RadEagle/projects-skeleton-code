@@ -12,9 +12,11 @@ class TestingDataset(torch.utils.data.Dataset):
     def __init__(self):
         file_path = 'data/train.csv'
         file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train.csv"
-        temp = pd.read_csv(file_path, skiprows = lambda x: x in [1, 20600], header=0)
+        temp = pd.read_csv('data/train.csv', skiprows = (i for i in range(1,20601)), header=0)
+        #temp = pd.read_csv(file_path, skiprows = lambda x: x in range(1, 20600), header=0)
         self.image_id = temp.image_id
         self.label = temp.label
+        self.len = len(temp)
         pass
 
     def __getitem__(self, index):
@@ -29,5 +31,7 @@ class TestingDataset(torch.utils.data.Dataset):
 
         return inputs, label
 
+    # should equal number of rows in the dataset        return inputs, label
+
     def __len__(self):
-        return 10000
+        return self.len
