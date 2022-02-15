@@ -39,7 +39,7 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
     )
 
     # Initalize optimizer (for gradient descent) and loss function
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), weight_decay=0.01)
     loss_fn = nn.CrossEntropyLoss()
     print(device)
     model = model.to(device)
@@ -48,11 +48,11 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
     step = 0
 
     ##These two lines for kaggle tensorboard
-    OUTPUT_DIR = "/kaggle/working"
-    writer = SummaryWriter(OUTPUT_DIR + "/logs")
+    #OUTPUT_DIR = "/kaggle/working"
+    #writer = SummaryWriter(OUTPUT_DIR + "/logs")
 
     ##This line for local tensorboard
-    #writer = SummaryWriter()
+    writer = SummaryWriter()
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1} of {epochs}")
 
@@ -65,6 +65,7 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
             images = images.to(device)
             labels = labels.to(device)
             outputs = model(images)
+            print(outputs.shape)
             #print("Results calculated")
             loss = loss_fn(outputs, labels)
             #print("loss calculated")
@@ -76,6 +77,7 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
             #print("zero_grad")
 
             # Periodically evaluate our model + log to Tensorboard
+            # after every 100 steps this goes inside number of batches 
             if ((step % n_eval == 0) and (step != 0)):
                 #print("Enters if statement")
                 # TODO:
@@ -99,8 +101,8 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
                 # Don't forget to turn off gradient calculations!
                 model.eval()
 
-                # after every 100 steps this goes inside for 313 steps
-                # evaluate(val_loader, model, loss_fn, device)
+                
+                evaluate(val_loader, model, loss_fn, device, writer)
 
                 model.train()
                 #print("end of if")
@@ -108,6 +110,9 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
             step += 1
 
         print()
+        
+    evaluate(val_loader, model, loss_fn, device, writer)
+
 
 
 def compute_accuracy(outputs, labels):
@@ -122,19 +127,18 @@ def compute_accuracy(outputs, labels):
         0.75
     """
 
+
     n_correct = (torch.round(outputs) == labels).sum().item()
     n_total = len(outputs)
     return n_correct / n_total
 
 
-def evaluate(val_loader, model, loss_fn, device):
+def evaluate(val_loader, model, loss_fn, device, writer):
     """
     Computes the loss and accuracy of a model on the validation dataset.
 
     TODO!
     """
-    # this does 313 steps
-    print("Start evaluate")
     # writer = SummaryWriter()
     print(len(val_loader))
     with torch.no_grad():
@@ -147,9 +151,10 @@ def evaluate(val_loader, model, loss_fn, device):
             labels = labels.to(device)
             outputs = model(images)
             loss = loss_fn(outputs, labels)
-            # accuracy = compute_accuracy(outputs, labels)
+            accuracy = compute_accuracy(outputs, labels)
 
-            # writer.add_scalar("Loss and Accuracy", loss, accuracy)
+            writer.add_scalar("Eval Accuracy", accuracy)
+            writer.add_scalar("Eval Loss", loss)
             #print("end batch")
 
     # writer.flush()

@@ -11,7 +11,7 @@ import torch
 
 def main():
     # Get command line arguments
-    hyperparameters = {"epochs": constants.EPOCHS, "batch_size": constants.BATCH_SIZE}
+    hyperparameters = {"epochs": constants.EPOCHS_TOY, "batch_size": constants.BATCH_SIZE}
 
     # TODO: Add GPU support. This line of code might be helpful.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
