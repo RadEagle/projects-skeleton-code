@@ -23,6 +23,13 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
     # Get keyword arguments
     batch_size, epochs = hyperparameters["batch_size"], hyperparameters["epochs"]
 
+    #train_dataset = train_dataset.to(device)
+    #val_dataset = val_dataset.to(device) 
+    #print(train_dataset.device) # I think the datasets have both the labels and the images 
+    #print(val_dataset.device)
+
+    #temp = torch.tensor(train_dataset).to(device) #This should work, if we substitute it into the loader. Not sure if its faster though
+    #temp2 = torch.tensor(val_dataset).to(device)
     # Initialize dataloaders,   
 
     train_loader = torch.utils.data.DataLoader(
@@ -35,9 +42,15 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
     # Initalize optimizer (for gradient descent) and loss function
     optimizer = optim.Adam(model.parameters(), lr = 0.0005, weight_decay=0.01)
     loss_fn = nn.CrossEntropyLoss()
+    print(device)
     model = model.to(device)
+    #train_loader = train_loader.to(device)
+    #test_loader = test_loader.to(device);
     step = 0
 
+    ##These two lines for kaggle tensorboard
+    #OUTPUT_DIR = "/kaggle/working"
+    #writer = SummaryWriter(OUTPUT_DIR + "/logs")
 
     ##This line for local tensorboard
     writer = SummaryWriter()
@@ -46,8 +59,10 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
 
         # Loop over each batch in the dataset
         for batch in tqdm(train_loader, position=0, leave=True):
-            # Backpropagation and gradient descent
+            # TODO: Backpropagation and gradient descent
+            #model.train()
             images, labels = batch
+            #print("Data present")
             images = images.to(device)
             labels = labels.to(device)
 
@@ -55,28 +70,47 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
 
             outputs = model(images)
             labels = torch.tensor(labels, dtype=torch.long)
-
+            # print(labels.shape)
+            # print(outputs.shape)
             loss = loss_fn(outputs, labels)
+            # print(f'Output size: {outputs.shape}')
             outputs = torch.argmax(outputs, dim=1)
+            # print(f'Output size 2: {outputs.shape}')
             outputs = torch.tensor(outputs, dtype=torch.float)
             labels = torch.tensor(labels, dtype=torch.float)
-
+            # print(outputs.shape)
+            # print(labels.shape)
+            # print(outputs[0])
+            # print(labels[0])
+            #print("Results calculated")
+            #print("loss calculated")
             loss.backward()       # Compute gradients
+            #print("back propagation")
             optimizer.step()      # Update all the weights with the gradients you just calculated
- 
+            #print("step")
+            # optimizer.zero_grad() # Clear gradients before next iteration
+            #print("zero_grad")
 
             # Periodically evaluate our model + log to Tensorboard
             # after every 100 steps this goes inside number of batches 
             if ((step % n_eval == 0) and (step != 0)):
+                #print("Enters if statement")
+                # TODO:
                 # Compute training loss and accuracy.
                 # Log the results to Tensorboard.
                 accuracy = compute_accuracy(outputs, labels)
 
-                #Log results to Tensorboard
-
+                ###Log results to Tensorboard??!!!?
+                # https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html
+                # writer = SummaryWriter()
                 writer.add_scalar("Accuracy", accuracy)
                 writer.add_scalar("Loss", loss)
+                # writer.flush()
+                # writer.close()
+                #print("Closed")
 
+
+                # TODO:
                 # Compute validation loss and accuracy.
                 # Log the results to Tensorboard.
                 # Don't forget to turn off gradient calculations!
@@ -86,8 +120,11 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval, d
                 evaluate(val_loader, model, loss_fn, device, writer)
 
                 model.train()
+                #print("end of if")
 
             step += 1
+
+        print()
         
     evaluate(val_loader, model, loss_fn, device, writer)
 
@@ -105,6 +142,8 @@ def compute_accuracy(outputs, labels):
         0.75
     """
 
+    # print("\n\nPrinting source of error")
+    # print(outputs.shape, labels.shape)
     n_correct = (torch.round(outputs) == labels).sum().item()
     n_total = len(outputs)
     return n_correct / n_total
@@ -116,10 +155,13 @@ def evaluate(val_loader, model, loss_fn, device, writer):
 
     TODO!
     """
+    # writer = SummaryWriter()
     print(len(val_loader))
     with torch.no_grad():
+        # this loops 313 times
         for batch in tqdm(val_loader, position=0, leave=False):
-
+        # for batch in val_loader:
+            #print("start batch")
             images, labels = batch
             images = images.to(device)
             labels = labels.to(device)
@@ -132,5 +174,8 @@ def evaluate(val_loader, model, loss_fn, device, writer):
 
             writer.add_scalar("Eval Accuracy", accuracy)
             writer.add_scalar("Eval Loss", loss)
+            #print("end batch")
 
+    # writer.flush()
+    # writer.close()
 

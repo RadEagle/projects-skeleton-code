@@ -6,5 +6,8 @@ data/*
 !data/TestingDataset.py
 !data/tb.py
 **/.DS_Store
+runs/
+.ipynb_checkpoints
+
 
 training_summaries

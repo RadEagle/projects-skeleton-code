@@ -10,9 +10,9 @@ class StartingDataset(torch.utils.data.Dataset):
     """
 
     def __init__(self):
-        file_path = 'data/train.csv'
-        file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train.csv"
-        temp = pd.read_csv(file_path, nrows = 20480)
+        file_path = 'data/train-balanced.csv'
+        file_path_kaggle = "/kaggle/input/cassava-leaf-disease-classification/train-balanced.csv"
+        temp = pd.read_csv(file_path, nrows = 5000) # previously 20480
         self.image_id = temp.image_id
         self.label = temp.label
         self.len = len(temp)
